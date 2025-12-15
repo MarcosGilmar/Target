@@ -32,7 +32,7 @@ const targets = [
 
 export default function Index() {
     return (
-        <View style={{ flex: 1, marginBottom: 32, }}>
+        <View style={{ flex: 1, marginBottom: 32}}>
             <StatusBar barStyle={"light-content"}/>
             <HomeHeader data={summary}/>
             <List 
@@ -48,10 +48,12 @@ export default function Index() {
                 emptyMessage="Nenhuma meta. Toque em nova meta para criar"
                 containerStyle={{ paddingHorizontal: 24}}
             />
-            <Button 
-                title="Nova meta"
-                onPress={() => router.navigate("/target")}
-            />
+            <View style= {{ paddingHorizontal: 24 }}>
+                <Button 
+                    title="Nova meta"
+                    onPress={() => router.navigate("/target")}
+                />
+            </View>
         </View>
     )
 }

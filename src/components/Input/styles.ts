@@ -6,7 +6,6 @@ export const styles = StyleSheet.create({
     container: {
         width: "100%",
         gap: 10,
-        paddingHorizontal: 24
     },
     label: {
         color: colors.gray[500],

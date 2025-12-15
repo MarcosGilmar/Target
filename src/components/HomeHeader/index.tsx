@@ -37,7 +37,7 @@ export function HomeHeader({ data }: Props) {
                 />
 
                 <Summary 
-                    isLeft
+                    isRight
                     data={data.output
                         
                     }

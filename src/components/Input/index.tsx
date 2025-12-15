@@ -14,7 +14,6 @@ export function Input({ label, ...rest}: Props) {
 
             <TextInput
                 style={styles.input}
-                placeholder="Ex: Viagem para praia, Apple Watch"
                 placeholderTextColor={colors.gray[400]}
                 {...rest}
             />

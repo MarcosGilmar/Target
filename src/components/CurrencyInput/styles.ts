@@ -5,8 +5,7 @@ import { colors, fontFamily } from "@/theme";
 export const styles = StyleSheet.create({
     container: {
         width: "100%",
-        gap: 10,
-        paddingHorizontal: 24
+        gap: 10
     },
     label: {
         color: colors.gray[500],
