@@ -1,19 +1,17 @@
-import { View } from "react-native"
-import { useLocalSearchParams, router } from "expo-router"
+import { Alert, View } from "react-native"
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router"
+import { useCallback, useState } from "react"
 
 import { PageHeader } from "@/components/PageHeader"
 import { Progress } from "@/components/Progress"
 import { List } from "@/components/List"
 import { Transaction, TransactionProps } from "@/components/Transaction"
 import { Button } from "@/components/Button"
+import { Loading } from "@/components/Loading"
 
 import { TransactionTypes } from "@/utils/TransactionTypes"
-
-const details = {
-    current: "R$ 580,00",
-    target: "R$ 1.790,00",
-    percentage: 50
-}
+import { useTargetDatabase } from "@/database/useTargetDatabase"
+import { numberToCurrency } from "@/utils/numberToCurrency"
 
 const transactions: TransactionProps[] = [
     {
@@ -32,15 +30,58 @@ const transactions: TransactionProps[] = [
 ]
 
 export default function InProgress() {
+    const [isFetching, setIsFetching] = useState(true)
+    const [details, setDetails] = useState({
+        name: "",
+        current: "R$ 0",
+        target: "R$ 0",
+        percentage: 0
+    })
+
     const params = useLocalSearchParams<{ id: string }>()
 
+    const targetDatabase = useTargetDatabase()
+
+    async function fetchDetails() {
+        try {
+            const response = await targetDatabase.show(Number(params.id))
+
+            setDetails({
+                name: response.name,
+                current: numberToCurrency(response.current),
+                target: numberToCurrency(response.amount),
+                percentage: response.percentage
+            })            
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possível carregar os detalhes da meta")
+            console.log(error)
+        }
+    }
+
+    async function fetchData() {
+        const fetchDetailsPromise = fetchDetails()
+
+        await Promise.all([fetchDetailsPromise])
+        setIsFetching(false)
+    }
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchData()
+        }, [])
+    )
+
+    if(isFetching) {
+        return <Loading />
+    }
+
     return (
-        <View style={{ flex: 1, gap: 32, marginBottom: 34 }}>
+        <View style={{ flex: 1, marginBottom: 34 }}>
             <PageHeader 
-                title="Apple Watch"
+                title={details.name}
                 rightButton={{
                     icon: "edit",
-                    onPress: () => {}
+                    onPress: () => {router.navigate(`/target?id=${params.id}`)}
                 }}
             />
 
