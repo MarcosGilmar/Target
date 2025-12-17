@@ -6,23 +6,45 @@ import { PageHeader } from "@/components/PageHeader";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { Input } from "@/components/Input";
 import { TransactionType } from "@/components/TransactionType";
-
-import { TransactionTypes } from "@/utils/TransactionTypes";
 import { Button } from "@/components/Button";
 
+import { TransactionTypes } from "@/utils/TransactionTypes";
+
+import { useTransactionsDatabase } from "@/database/useTransactionsDatabase";
+
 export default function Transaction() {
+    const [amount, setAmount] = useState(0)
     const [type, setType] = useState(TransactionTypes.Input)
     const [isCreating, setIsCreating] = useState(false)
+    const [observation, setObservation] = useState("")
 
     const params = useLocalSearchParams<{id: string}>()
+    const transictionsDatabase = useTransactionsDatabase()
 
     async function handleCreate() {
         try {
-            
+            if(!amount || amount <= 0) {
+                return Alert.alert("Atenção!", "Preencha o valor")
+            }
+
+            await transictionsDatabase.create({
+                target_id: Number(params.id),
+                amount: type === TransactionTypes.Output ? amount * -1 : amount,
+                observation: observation
+            })
+
+            setIsCreating(true)
         } catch (error) {
             Alert.alert("Erro", "Não foi possível salvar a transação")
             console.log(error)
         }
+
+        Alert.alert("Sucesso", "Transação salva com sucesso", [
+            {
+                text: "Ok",
+                onPress: () => router.back()
+            },
+        ])
     }
 
     return (
@@ -34,8 +56,16 @@ export default function Transaction() {
 
             <View style={{ marginTop: 32, gap: 24, paddingHorizontal: 24 }}>
                 <TransactionType selected={type} onChange={setType}/>
-                <CurrencyInput label="Valor (R$)" value={0}/>
-                <Input label="Motivo (opcional)" placeholder="Ex: Investir em CDB de 110% no banco XPTO"/>
+                <CurrencyInput 
+                    label="Valor (R$)" 
+                    value={amount} 
+                    onChangeValue={setAmount}
+                />
+                <Input 
+                    label="Motivo (opcional)" 
+                    placeholder="Ex: Investir em CDB de 110% no banco XPTO"
+                    onChangeText={setObservation}
+                />
             </View>
             <View style={{ padding: 24 }}>
                 <Button 
